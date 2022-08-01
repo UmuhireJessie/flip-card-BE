@@ -6,6 +6,14 @@ export const Card = objectType({
     t.nonNull.int("id");
     t.nonNull.string("question");
     t.nonNull.string("answer");
+    t.field("postedBy", {   // 1
+      type: "User",
+      resolve(parent, args, context) {  // 2
+          return context.prisma.card
+              .findUnique({ where: { id: parent.id } })
+              .postedBy();
+      },
+  });
   },
 });
 
@@ -47,12 +55,20 @@ export const CardMutation = extendType({
       },
 
       resolve(parent, args, context) {
+        const { question, answer } = args;
+        const { userId } = context;
+
+        if (!userId) {
+          throw new Error("Cannot post without logging in.")
+        }
+
         const newCard = context.prisma.card.create({
           data: {
-            question: args.question,
-            answer: args.answer,
-          },
-        });
+            question,
+            answer,
+            postedBy: { connect: { id: userId }},
+          }
+        })
         return newCard;
       },
     });
@@ -67,11 +83,18 @@ export const CardMutation = extendType({
       },
 
       resolve(parent, args, context) {
+        const { question, answer } = args;
+        const { userId } = context;
+
+        if (!userId) {
+          throw new Error("Cannot update without logging in.")
+        }
+
         return context.prisma.card.update({
           where: { id: args.id },
           data: {
-            question: args.question,
-            answer: args.answer,
+            question: question,
+            answer: answer,
           },
         });
       },
@@ -85,6 +108,12 @@ export const CardMutation = extendType({
       },
 
       resolve(parent, args, context) {
+        const { userId } = context;
+
+        if (!userId) {
+          throw new Error("Cannot update without logging in.")
+        }
+
         return context.prisma.card.delete({
           where: { id: args.id }
         });
