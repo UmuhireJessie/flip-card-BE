@@ -7,7 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --transpile-only --no-notify --exit-child src/index.ts",
     "generate": "ts-node --transpile-only src/schema.ts",
-    "migrate": "ts-node src/script.ts"
+    "migrate": "ts-node src/script.ts",
+    "migrate:deploy": "prisma migrate deploy",
+    "build": "prisma generate && npm run generate && tsc",
+    "start": "node dist/src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +26,7 @@
     "@prisma/client": "^3.5.0",
     "apollo-server": "^3.1.1",
     "bcryptjs": "~2.4.0",
+    "dotenv": "^16.0.1",
     "graphql": "^15.5.1",
     "jsonwebtoken": "~8.5.0",
     "nexus": "^1.1.0"
